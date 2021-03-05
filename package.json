@@ -1,0 +1,21 @@
+{
+  "name": "koopap-development",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "heroku local:start",
+    "start_old": "node ./bin/www"
+  },
+  "engines": {
+    "node": "14.15.5",
+    "npm": "6.14.11"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1"
+  }
+}

@@ -1,0 +1,50 @@
+<form method="post" action="/users/<%= user.id %>?_method=PUT" >
+    
+    <% include _passCheck.ejs %>
+
+    <ul>
+        <li>
+
+            <b>Email actual: <%= user.email %></b>
+            <label for="email" class="rem">Cambiar email:</label>
+            <input type="email" id="email" name="email" />
+
+        </li>
+
+
+        <li>
+
+            <b>Username actual: <%= user.username %></b>
+            <label for="username" class="rem">Cambiar username:</label>
+            <input type="text" id="username" name="username" autocomplete="off"/>
+
+        </li>
+    
+            
+        <li>
+
+            <b>Nombre actual: <%= user.name %></b>
+            <label for="name" class="rem">Nombre:</label>
+            <input type="text" id="name" name="name" />
+
+        </li>
+
+
+         <li>
+             
+            <b>Bio actual: <%= user.bio %></b>
+            <label for="bio" class="rem">Biografía:</label>
+            <input type="textarea" rows="10" id="bio" name="bio" />
+
+        </li>
+
+    </ul>
+
+    <input type="submit" value="Save" >
+
+</form>
+
+
+<div>
+    <a href="/goback" class="button">Cancel</a>
+</div>

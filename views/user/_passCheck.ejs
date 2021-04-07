@@ -1,0 +1,32 @@
+<script>
+    function forcePassword() {
+        var pw1 = document.getElementById('user_password').value;
+        var pw2 = document.getElementById('user_confirm_password').value;
+        if (!pw1 || !pw2) {
+            alert('Password and Confirmation fields must be filled in.');
+            return false;
+        }
+        return true;
+    }
+    function validPassword() {
+        var pw1 = document.getElementById('user_password').value;
+        var pw2 = document.getElementById('user_confirm_password').value;
+        if (pw1 !== pw2) {
+            alert('Passwords and Confirmation fields do not match.');
+            return false;
+        }
+        if (pw1 && pw1.length < 8) {
+            alert('Password must be at least 8 characters.');
+            return false;
+        }
+        if (pw1 && !/\d/.test(pw1)) {
+            alert('Password must contain at least 1 number.');
+            return false;
+        }
+        if (pw1 && !/[A-Z]/.test(pw1)) {
+            alert('Password must contain at least 1 uppercase letter.');
+            return false;
+        }
+        return true;
+    }
+</script>

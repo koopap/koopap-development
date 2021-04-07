@@ -1,0 +1,65 @@
+<form method="post" action="/users" >
+    
+    <% include _passCheck.ejs %>
+
+    <ul>
+        <li>
+
+            <label for="email" class="rem">Email:</label>
+            <input type="email" id="email" name="email" />
+
+        </li>
+
+
+        <li>
+
+                <label for="username" class="rem">User name:</label>
+                <input type="text" id="username" name="username" autocomplete="off"/>
+
+        </li>
+
+    
+        <li>
+
+                <span class="text-danger">Enter the new password twice</span>
+
+            <ul>
+                <li>
+                    <label for="user_password" class="rem">Password:</label>
+                    <input type="password" id="user_password" name="password" autocomplete="off"/>
+                </li>
+    
+                <li>
+                    <label for="user_confirm_password" class="rem">Confirm Password:</label>
+                    <input type="password" id="user_confirm_password" autocomplete="off"/>
+                </li>
+            </ul>
+        
+        </li>
+    
+            
+        <li>
+
+            <label for="name" class="rem">Nombre:</label>
+            <input type="text" id="name" name="name" />
+
+        </li>
+
+
+        <li>
+
+            <label for="bio" class="rem">Biografía:</label>
+            <input type="textarea" rows="10" id="bio" name="bio" />
+
+        </li>
+        
+    </ul>
+
+    <input type="submit" value="Save" onclick="return forcePassword() && validPassword()">
+
+</form>
+
+
+<div>
+    <a href="/goback" class="button">Cancel</a>
+</div>

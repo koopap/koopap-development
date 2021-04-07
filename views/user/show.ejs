@@ -1,0 +1,16 @@
+
+  <body>
+    <h1>User</h1>
+      <li>
+        <ul>ID: <%= user.id %></ul>
+        <ul>NAME: <%= user.name %></ul>
+        <ul>EMAIL: <%= user.email %></ul>
+        <ul>USERNAME: <%= user.username %></ul>
+        <ul>BIO: <%= user.bio %></ul>
+      </li>
+
+      <a href="/users/<%= user.id %>/edit" class="button">EDITAR</a>
+      <a href="/users/<%= user.id %>?_method=DELETE"
+        onClick="return confirm('Eliminar usuario: <%= user.username %>');"
+        class="button">ELIMINAR</a>
+

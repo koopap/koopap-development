@@ -1,8 +1,369 @@
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin: 0;
+}
+
+#page {
+  display: flex;
+  flex-flow: row wrap;
+  margin: 2px auto;
+  padding: 0px;
+}
+
+.main {
+  flex: 1 100%;
+  border: 1px solid #999;
+  padding: 2px;
+  margin: 1px;
+  background: #eee;
+}
+
+#mainHeader, #mainNav, #mainFooter {
+  text-align: center;
+}
+
+#mainHeader h1 {
+  margin: 8px;
+}
+
+#mainNav a {
+  margin: 0px 5px;
+}
+
+#mainSection {
+  padding: 20px;
+  text-align: left;
+}
+
+input[type=text], input[type=password] {
+  background-color: white;
+  height: 15px;
+  transition: ease-in-out, background-color .4s ease-in-out, height .4s ease-in-out;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: yellow;
+  height: 24px;
 }
 
 a {
   color: #00B7FF;
+}
+
+a.button {
+  display: inline-block;
+  font-size: x-small;
+  text-decoration: none;
+  padding: 1px 4px;
+  margin: 2px;
+  background: #f5f5f5;
+  color: black;
+  border-radius: 4px;
+  border: solid 1px lightgray;
+}
+
+a.button:hover {
+  background: lightgray;
+}
+
+.right {
+  float: right;
+}
+
+.attachment {
+  border-radius: 10px;
+  border: 2px solid #00f;
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+}
+
+.photo {
+  border-radius: 50px;
+  border: 2px solid #000;
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+}
+
+.miniphoto {
+  border-radius: 20px;
+  border: 2px solid #000;
+  object-fit: cover;
+  width: 40px;
+  height: 40px;
+}
+
+.stars {
+    float: left;
+    clear: both;
+}
+
+/* ------------------------- */
+
+.wideRow {
+  display: flex;
+  flex-flow: row wrap;
+  align-content: stretch;
+}
+
+.wideRow .itemNarrow {
+  flex: 0 auto;
+  margin: 0px 5px;
+}
+
+.wideRow .itemWide {
+  flex: 1 auto;
+  margin: 0px 5px;
+}
+
+.loginicon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+/* ------------------------- */
+
+#quizzesIndex {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#quizzesIndex tr {
+  background-color: #e5e5e5;
+
+  border: 1px dotted #636363;
+  border-radius: 5px;
+}
+
+#quizzesIndex tr:nth-child(even) {
+  background-color: #cfcfcf
+}
+
+#quizzesIndex td {
+  padding: 3px;
+  margin: 2px;
+}
+
+#quizzesIndex tr td:nth-child(1) {
+  text-align: center;
+  width: 150px;
+}
+
+#quizzesIndex tr td:nth-child(2) {
+  vertical-align: top;
+  text-align: left;
+}
+
+#quizzesIndex tr td:nth-child(3) {
+  vertical-align: bottom;
+  text-align: right;
+}
+
+/* ------------------------- */
+
+#usersIndex {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#usersIndex tr {
+  background-color: #e5e5e5;
+
+  border: 1px dotted #636363;
+  border-radius: 5px;
+}
+
+#usersIndex tr:nth-child(even) {
+  background-color: #cfcfcf
+}
+
+#usersIndex td {
+  padding: 3px;
+  margin: 2px;
+}
+
+#usersIndex tr td:nth-child(1) {
+  text-align: center;
+  width: 100px;
+}
+
+#usersIndex tr td:nth-child(2) {
+  vertical-align: top;
+  text-align: left;
+}
+
+#usersIndex tr td:nth-child(3) {
+  vertical-align: bottom;
+  text-align: right;
+}
+
+/* ------------------------- */
+
+.quizItem {
+  display: flex;
+  flex-flow: row wrap;
+  align-content: stretch;
+
+  width: 100%;
+  border: 1px dotted #636363;
+  border-radius: 5px;
+  background-color: #e5e5e5;
+
+  margin: 10px 0px;
+}
+
+.quizItem div {
+  padding: 5px;
+  margin: 2px;
+}
+
+.quizItem div:nth-child(1) {
+  flex: 0 auto;
+  text-align: center;
+  width: 150px;
+}
+
+.quizItem div:nth-child(2) {
+  flex: 1 auto;
+  align-self: center;
+  text-align: left;
+}
+
+.quizItem div:nth-child(3) {
+  flex: 0 auto;
+  text-align: right;
+}
+
+/* ------------------------- */
+
+#flashinfo {
+  width: auto;
+  border: 2px solid blue;
+  padding: 7px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+#flashinfo h3 {
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 5px 5px 15px;
+  font-size: 12px;
+  margin: -7px;
+  margin-bottom: 0px;
+  background-color: #00c;
+  color: #ffffff;
+}
+
+#flashinfo ul li {
+  margin: 5px 5px 5px 0px;
+  font-size: 12px;
+  list-style: square;
+}
+
+#flashsuccess {
+  width: auto;
+  border: 2px solid green;
+  padding: 7px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+#flashsuccess h3 {
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 5px 5px 15px;
+  font-size: 12px;
+  margin: -7px;
+  margin-bottom: 0px;
+  background-color: #0c0;
+}
+
+#flashsuccess ul li {
+  margin: 5px 5px 5px 0px;
+  font-size: 12px;
+  list-style: square;
+}
+
+#flasherror {
+  width: auto;
+  border: 2px solid red;
+  padding: 7px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+#flasherror h3 {
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 5px 5px 15px;
+  font-size: 12px;
+  margin: -7px;
+  margin-bottom: 0px;
+  background-color: #c00;
+}
+
+#flasherror ul li {
+  margin: 5px 5px 5px 0px;
+  font-size: 12px;
+  list-style: square;
+}
+
+
+.pagination {
+  padding-left: 0;
+  margin: 15px 0px 0px 0px;
+  border-radius: 4px;
+}
+
+.pagination > li {
+  display: inline;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+  position: relative;
+  float: left;
+  padding: 3px 7px;
+  margin-left: -1px;
+  line-height: 1.42857143;
+  color: #00B7FF;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+  z-index: 2;
+  color: #fff;
+  cursor: default;
+  background-color: #00B7FF;
+  border-color: #03a9f4;
+}
+
+.pagination > li:first-child > a,
+.pagination > li:first-child > span {
+  margin-left: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.pagination > li:last-child > a,
+.pagination > li:last-child > span {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }

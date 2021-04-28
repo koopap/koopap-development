@@ -3,13 +3,25 @@ const axios = require('axios');
 
 
 exports.load = async (req, res, next, postId) => {
-    console.log("1")
+
     const query = 
     '{' +
-    '  categories: Demo_CategoryList {' +
+    '  post: koopap_PostsList (' +
+    '    where: { id: {EQ: ' + postId + '}' +
+    '    })' +
+    '  {' +
     '    id' +
-    '    code' +
-    '    name' +
+    '    title' +
+    '    content' +
+    '    score' +
+    '    visualizations' +
+    '    impact' +
+    '    createdAt' +
+    '    updatedAt' +
+    '    authorId' +
+    '    categoryId' +
+    '    length' +
+    '    readingTime' +
     '  }' +
     '}';
 
@@ -21,16 +33,19 @@ exports.load = async (req, res, next, postId) => {
     try {
 
         let request = JSON.stringify({query: query, variables: variables});
-        const response = await fetch("https://koopap.flows.ninja/graphql", {
-            method: "POST",
-            body: request
-        })
 
-        if (!response.ok){
+        let response = await axios({
+            url: 'https://koopap.flows.ninja/graphql',
+            method: 'post',
+            data: request
+          })
+
+        if (response.status != 200) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
-            const post = await response.json();
-            if (post) {
+
+            if (response.data.data.post) {
+                const post = response.data.data.post[0];
                 req.load = {...req.load, post};
                 next();
             } else {
@@ -41,19 +56,34 @@ exports.load = async (req, res, next, postId) => {
     } catch (error) {
         next(error);
     }
+
+};
+
+
+
+// MW that allows actions only if the user logged in is admin or is the author of the post.
+exports.adminOrAuthorRequired = (req, res, next) => {
+
+    const isAdmin = !!req.loginUser.isAdmin;
+    const isAuthor = req.load.post.authorId === req.loginUser.id;
+
+    if (isAdmin || isAuthor) {
+        next();
+    } else {
+        console.log('Prohibited operation: The logged in user is not the author of the post, nor an administrator.');
+        res.send(403);
+    }
 };
 
 
 // GET /posts
 exports.index = async (req, res, next) => {
-    console.log(token)
-    
+
     const query = 
     '{' +
-    '  categories: Demo_CategoryList {' +
+    '  posts: koopap_PostsList {' +
     '    id' +
-    '    code' +
-    '    name' +
+    '    title' +
     '  }' +
     '}';
 
@@ -63,26 +93,7 @@ exports.index = async (req, res, next) => {
       
 
     try {
-/*
-        let request = JSON.stringify({query: query, variables: variables});
-        let response = await fetch("https://koopap.flows.ninja/graphql", {
-            method: "POST",
-            body: request
-        })
 
-        if (!response.ok){
-            throw new Error(`HTTP error! status: ${response.status}`);
-        } else {
-            const post = await response.json();
-            if (post) {
-                res.render('index', { title: JSON.stringify(post) });
-                //req.load = {...req.load, post};
-                //next();
-            } else {
-                throw new Error('There is no post with id=' + postId);
-            }
-        }
-*/
         let request = JSON.stringify({query: query, variables: variables});
         let response = await axios({
             url: 'https://koopap.flows.ninja/graphql',
@@ -93,13 +104,12 @@ exports.index = async (req, res, next) => {
         if (response.status != 200) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
-            const post = response.data;
-            if (post) {
-                res.render('index', { title: JSON.stringify(post) });
-                //req.load = {...req.load, post};
-                //next();
+            const posts = response.data.data.posts;
+
+            if (posts) {
+                res.render('post/index', { posts: posts });
             } else {
-                throw new Error('There is no post with id=' + postId);
+                throw new Error('There is no posts');
             }
         }
 
@@ -116,7 +126,7 @@ exports.show =  (req, res, next) => {
     const {post} = req.load;
 
     try {
-        res.render('posts/show', {
+        res.render('post/show', {
             post
         });
     } catch (error) {
@@ -128,17 +138,65 @@ exports.show =  (req, res, next) => {
 // GET /posts/new
 exports.new = (req, res, next) => {
 
-    res.render('posts/new');
+    res.render('post/new');
 };
 
 
 // POST /posts/create
 exports.create = async (req, res, next) => {
 
-    const {title, text} = req.body;
+    const {title, content} = req.body;
+
+    let currentDate = new Date();
+    let currentDateISO = (currentDate.toISOString()).slice(0, -8);
+
+    const authorId = req.loginUser.id;
+
+    const query = 
+    'mutation {' +
+    '  post: koopap_PostsCreate(' +
+    '    entity: {' +
+    '      title: "' + title + '"' +
+    '      content: "' + content + '"' +
+    '      authorId: ' + authorId +
+    '      createdAt: "' + currentDateISO + '"' +
+    '      updatedAt: "' + currentDateISO + '"' +
+    '    }' +
+    '  )' +
+    '  {' +
+    '    id' +
+    '  }' +
+    '}';
+
+    const variables = {
+        authorization: token
+    };
+      
 
     try {
-        // AWAIT CODE, GRAPHQL TO AIRFLOWS
+
+        let request = JSON.stringify({query: query, variables: variables});
+
+        let response = await axios({
+            url: 'https://koopap.flows.ninja/graphql',
+            method: 'post',
+            data: request
+          })
+
+        if (response.status != 200) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        } else {
+
+            if (response.data.data.post) {
+                const post = response.data.data.post;
+                res.redirect('/posts/' + post.id);
+            } else {
+                if (response.data.errors) {
+                    throw new Error('An error ocurred. Error: ' + response.data.errors[0].message);
+                }
+                throw new Error('An error ocurred');
+            }
+        }
     } catch (error) {
         next(error);
     }
@@ -150,22 +208,80 @@ exports.edit = (req, res, next) => {
 
     const {post} = req.load;
 
-    res.render('posts/edit', {post});
+    try {
+        res.render('post/edit', {
+            post
+        });
+    } catch (error) {
+        next(error);
+    }
+
 };
 
 
 // PUT /posts/:postId
 exports.update = async (req, res, next) => {
 
-    const {post} = req.load;
-    const {title, text} = req.body;
+    const postParam = req.load.post;
+    var {title, content} = req.body;
 
-    post.title = title;
-    post.text = text;
+    if (title.length === 0){
+        title = postParam.title;
+    };
+
+    if (content.length === 0){
+        content = postParam.content;
+    };
+
+
+    let currentDate = new Date();
+    let currentDateISO = (currentDate.toISOString()).slice(0, -8);
+
+    const query = 
+    'mutation {' +
+    '  post: koopap_PostsUpdate (' +
+    '    where: { id: {EQ: ' + postParam.id + '}' +
+    '    }' +
+    '    entity: {' +
+    '      title: "' + title + '"' +
+    '      content: "' + content + '"' +
+    '      updatedAt: "' + currentDateISO + '"' +
+    '    }' +
+    '  ) {' +
+    '    id' +
+    '  }' +
+    '}';
+
+    const variables = {
+        authorization: token
+    };
+      
 
     try {
-        // AWAIT CODE, GRAPHQL TO AIRFLOWS
-    }  catch(error) {
+
+        let request = JSON.stringify({query: query, variables: variables});
+
+        let response = await axios({
+            url: 'https://koopap.flows.ninja/graphql',
+            method: 'post',
+            data: request
+          })
+
+        if (response.status != 200) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        } else {
+
+            if (response.data.data.post) {
+                const post = response.data.data.post[0];
+                res.redirect('/posts/' + post.id);
+            } else {
+                if (response.data.errors) {
+                    throw new Error('An error ocurred. Error: ' + response.data.errors[0].message);
+                }
+                throw new Error('An error ocurred');
+            }
+        }
+    } catch (error) {
         next(error);
     }
 };
@@ -174,11 +290,52 @@ exports.update = async (req, res, next) => {
 // DELETE /posts/:postId
 exports.destroy = async (req, res, next) => {
 
-    const {post} = req.load;
+    const postParam = req.load.post;
+
+    const query = 
+    'mutation {' +
+    '  post: koopap_PostsDelete (' +
+    '    where: { id: {EQ: ' + postParam.id + '}' +
+    '    })' +
+    '  {' +
+    '    id' +
+    '  }' +
+    '}';
+
+    const variables = {
+        authorization: token
+    };
+      
 
     try {
-        // AWAIT CODE, GRAPHQL TO AIRFLOWS
-    }  catch(error) {
+
+        let request = JSON.stringify({query: query, variables: variables});
+
+        let response = await axios({
+            url: 'https://koopap.flows.ninja/graphql',
+            method: 'post',
+            data: request
+          })
+
+        if (response.status != 200) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        } else {
+
+            if (response.data.data.post) {
+                const post = response.data.data.post[0];
+                if (post.id === postParam.id) {
+                    req.flash('success', 'Post eliminado correctamente');
+                    res.redirect('/goback');
+                }
+
+            } else {
+                throw new Error('There is no post');
+            }
+        }
+
+    } catch (error) {
         next(error);
     }
+
+
 };

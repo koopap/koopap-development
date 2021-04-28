@@ -100,9 +100,8 @@ exports.load = async (req, res, next, userId) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            const user = response.data.data.user[0];
-
-            if (user) {
+            if (response.data.data.user) {
+                const user = response.data.data.user[0];
                 req.load = {...req.load, user};
                 next();
             } else {
@@ -150,7 +149,7 @@ exports.index = async (req, res, next) => {
             if (users) {
                 res.render('user/index', { users: users });
             } else {
-                throw new Error('There is no post');
+                throw new Error('There is no users');
             }
         }
 
@@ -197,7 +196,7 @@ exports.create = async (req, res, next) => {
 
     const query = 
     'mutation {' +
-    '  koopap_UsersCreate(' +
+    '  user: koopap_UsersCreate(' +
     '    entity: {' +
     '      email: "' + email + '"' +
     '      password: "' + cryptPass + '"' +
@@ -235,9 +234,8 @@ exports.create = async (req, res, next) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            const user = response.data.data.koopap_UsersCreate;
-
-            if (user) {
+            if (response.data.data.user) {
+                const user = response.data.data.user;
                 res.redirect('/users/' + user.id);
             } else {
                 if (response.data.errors) {
@@ -295,7 +293,7 @@ exports.update = async (req, res, next) => {
 
     const query = 
     'mutation {' +
-    '  koopap_UsersUpdate (' +
+    '  user: koopap_UsersUpdate (' +
     '    where: { id: {EQ: ' + userParam.id + '}' +
     '    }' +
     '    entity: {' +
@@ -329,9 +327,8 @@ exports.update = async (req, res, next) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            const user = response.data.data.koopap_UsersUpdate[0];
-
-            if (user) {
+            if (response.data.data.user) {
+                const user = response.data.data.user[0];
                 res.redirect('/users/' + user.id);
             } else {
                 if (response.data.errors) {
@@ -380,9 +377,8 @@ exports.destroy = async (req, res, next) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            const user = response.data.data.user[0];
-
-            if (user) {
+            if (response.data.data.user) {
+                const user = response.data.data.user[0];
                 if (user.id === userParam.id) {
                     req.flash('success', 'Usuario eliminado correctamente');
                     res.redirect('/goback');

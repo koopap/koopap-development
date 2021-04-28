@@ -13,6 +13,55 @@ const LocalStrategy = require('passport-local').Strategy;
 const maxIdleTime = 30*60*1000;
 
 
+// Middleware: Login required.
+//
+// If the user is logged in previously then there will exists
+// the req.loginUser object, so I continue with the others
+// middlewares or routes.
+// If req.loginUser does not exist, then nobody is logged,
+// so I redirect to the login screen.
+//
+exports.loginRequired = function (req, res, next) {
+    if (req.loginUser) {
+        next();
+    } else {
+        req.flash("info", "Login required: log in and retry.");
+        res.redirect('/login');
+    }
+};
+
+
+// MW that allows to pass only if the logged useer in is admin.
+exports.adminRequired = (req, res, next) => {
+
+    const isAdmin = !!req.loginUser.isAdmin;
+
+    if (isAdmin) {
+        next();
+    } else {
+        console.log('Prohibited route: the logged in user is not an administrator.');
+        res.send(403);
+    }
+};
+
+// MW that allows to pass only if the logged in user is:
+// - admin
+// - or is the user to be managed.
+exports.adminOrMyselfRequired = (req, res, next) => {
+
+    const isAdmin = !!req.loginUser.isAdmin;
+    const isMyself = req.load.user.id === req.loginUser.id;
+
+    if (isAdmin || isMyself) {
+        next();
+    } else {
+        console.log('Prohibited route: it is not the logged in user, nor an administrator.');
+        res.send(403);
+    }
+};
+
+
+
 // Middleware used to check the inactivity time.
 // If the inactivity time has been exceeded, then the user session is destroyed.
 exports.checkLoginExpires = (req, res, next) => {

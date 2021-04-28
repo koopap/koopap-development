@@ -1,0 +1,24 @@
+
+  <body>
+    <h1>Post</h1>
+      <li>
+        <ul>ID: <%= post.id %></ul>
+        <ul>TITLE: <%= post.title %></ul>
+        <ul>CONTENT: <%= post.content %></ul>
+        <ul>VISUALIZATIONS: <%= post.visualizations %></ul>
+        <ul>IMAPCT: <%= post.impact %></ul>
+        <ul>CREATEDAT: <%= post.createdAt %></ul>
+        <ul>UPDATEDAT: <%= post.updatedAt %></ul>
+        <ul>AUTHORID: <%= post.authorId %></ul>
+        <ul>CATEGORYID: <%= post.categoryId %></ul>
+        <ul>LENGTH: <%= post.length %></ul>
+        <ul>READINGTIME: <%= post.readingTime %></ul>
+      </li>
+
+      <% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === post.authorId)) { %>
+        <a href="/posts/<%= post.id %>/edit" class="button">EDITAR</a>
+        <a href="/posts/<%= post.id %>?_method=DELETE"
+          onClick="return confirm('Eliminar post: <%= post.title %>');"
+          class="button">ELIMINAR</a>
+      <% } %>
+

@@ -1,0 +1,10 @@
+
+    <h1>Posts</h1>
+    <table id="">
+      <% for (var i in posts) { %>
+        <tr>
+          <td><a href="/posts/<%= posts[i].id %>" class="button"><%= posts[i].title %></a><b><%= posts[i].id %></b></td>
+        </tr>
+      <% } %>
+    </table>
+

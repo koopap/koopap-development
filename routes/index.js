@@ -33,7 +33,8 @@ router.get(
       '/',
       '/users',
       '/users/:id(\\d+)',
-      '/posts'
+      '/posts',
+      '/posts/:id(\\d+)',
   ],
   saveBack);
 
@@ -54,20 +55,20 @@ router.param('userId', userController.load);
 // Routes for the resource /post
 router.get('/posts', postController.index);
 router.get('/posts/:postId(\\d+)', postController.show);
-router.get('/posts/new', postController.new);
-router.post('/posts', postController.create);
-router.get('/posts/:postId(\\d+)/edit', postController.edit);
-router.put('/posts/:postId(\\d+)', postController.update);
-router.delete('/posts/:postId(\\d+)', postController.destroy);
+router.get('/posts/new', sessionController.loginRequired, postController.new);
+router.post('/posts', sessionController.loginRequired, postController.create);
+router.get('/posts/:postId(\\d+)/edit', sessionController.loginRequired, postController.adminOrAuthorRequired, postController.edit);
+router.put('/posts/:postId(\\d+)', sessionController.loginRequired, postController.adminOrAuthorRequired, postController.update);
+router.delete('/posts/:postId(\\d+)', sessionController.loginRequired, postController.adminOrAuthorRequired, postController.destroy);
 
 // Routes for the resource /user
 router.get('/users', userController.index);
 router.get('/users/:userId(\\d+)', userController.show);
 router.get('/users/new', userController.new);
 router.post('/users', userController.create);
-router.get('/users/:userId(\\d+)/edit', userController.edit);
-router.put('/users/:userId(\\d+)', userController.update);
-router.delete('/users/:userId(\\d+)', userController.destroy);
+router.get('/users/:userId(\\d+)/edit', sessionController.loginRequired, sessionController.adminOrMyselfRequired, userController.edit);
+router.put('/users/:userId(\\d+)', sessionController.loginRequired, sessionController.adminOrMyselfRequired, userController.update);
+router.delete('/users/:userId(\\d+)', sessionController.loginRequired, sessionController.adminOrMyselfRequired, userController.destroy);
 
 // Routes for the resource /session
 router.get('/login', sessionController.new);

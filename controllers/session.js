@@ -4,6 +4,16 @@ const crypt = require('../helpers/crypt');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
+// Google Authentication values are provided using environment variables.
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+// Base URL of the Callback URL
+const CALLBACK_BASE_URL = process.env.CALLBACK_BASE_URL || "http://localhost:5000";
+
+const GoogleStrategy = GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && require('passport-google-oauth20').Strategy;
+
+
 // This variable contains the maximum inactivity time allowed without
 // making requests.
 // If the logged user does not make any new request during this time,
@@ -99,7 +109,7 @@ passport.serializeUser((user, done) => {
  * Find the user with the serialized id.
  */
 passport.deserializeUser(async (id, done) => {
-
+    console.log("DESSS")
     const query = 
     '{' +
     '  user: koopap_UsersList (' +
@@ -137,12 +147,17 @@ passport.deserializeUser(async (id, done) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            const user = response.data.data.user[0];
+            if (response.data.data.user) {
+                if (response.data.data.user.length != 0) {
+                    const user = response.data.data.user[0];
+                    done(null, user);
+                } else {
+                    const user = null;
+                    done(null, user);
+                }
 
-            if (user) {
-                done(null, user);
             } else {
-                throw new Error('There is no user with id=' + userId);
+                throw new Error('There is no user with id=' + id);
             }
         }
 
@@ -231,6 +246,113 @@ passport.use(new LocalStrategy(
 ));
 
 
+
+//   Use the GoogleStrategy within Passport.
+//   Strategies in Passport require a `verify` function, which accept
+//   credentials (in this case, an accessToken, refreshToken, and GitHub
+//   profile), and invoke a callback with a user object.
+GoogleStrategy && passport.use(new GoogleStrategy({
+    clientID: GOOGLE_CLIENT_ID,
+    clientSecret: GOOGLE_CLIENT_SECRET,
+    callbackURL: `${CALLBACK_BASE_URL}/auth/google/callback`
+},
+async (accessToken, refreshToken, profile, done) => {
+
+    console.log("PROFILE: ", profile)
+    const queryFind = 
+    '{' +
+    '  user: koopap_UsersList (' +
+    '    where: {' +
+    '      AND: [' +
+    '        {accountType: {EQ: "google"}}' +
+    '        { profileId: {EQ: "' + profile.id + '"}}' +
+    '      ]' +
+    '    })' +
+    '  {' +
+    '    id' +
+    '    email' +
+    '    password' +
+    '    salt' +
+    '  }' +
+    '}';
+
+    let currentDate = new Date();
+    let currentDateISO = (currentDate.toISOString()).slice(0, -8);
+
+    const queryCreate = 
+    'mutation {' +
+    '  user: koopap_UsersCreate(' +
+    '    entity: {' +
+    '      email: "' + profile.emails[0].value + '"' +
+    '      name: "' + profile.displayName + '"' +
+    '      createdAt: "' + currentDateISO + '"' +
+    '      updatedAt: "' + currentDateISO + '"' +
+    '      isPrivate: true' +
+    '      isAdmin: false' +
+    '      accountType: "google"' +
+    '      profileId: "' + profile.id + '"' +
+    '    }' +
+    '  )' +
+    '  {' +
+    '    id' +
+    '  }' +
+    '}';
+    
+
+    const variables = {
+        authorization: token
+    };
+
+
+    try {
+        // The returned Google profile represent the logged-in user.
+        // I must associate the Google account with a user record in the database,
+        // and return that user.
+        let requestFind = JSON.stringify({query: queryFind, variables: variables});
+
+        let response = await axios({
+            url: 'https://koopap.flows.ninja/graphql',
+            method: 'post',
+            data: requestFind
+          })
+console.log("RF", requestFind)
+        if (response.status != 200) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        } else {
+            //if (response.data.data.user) {
+            console.log("RR", response.data)
+
+            if (response.data.data.user.length != 0) {
+                const user = response.data.data.user[0];
+                done(null, user);
+            } else {
+                let requestCreate = JSON.stringify({query: queryCreate, variables: variables});
+                console.log("REQU", requestCreate)
+                let response = await axios({
+                    url: 'https://koopap.flows.ninja/graphql',
+                    method: 'post',
+                    data: requestCreate
+                })
+                console.log(response.data)
+                console.log("RES", response.data.data)
+                if (response.data.data.user) {
+                    const user = response.data.data.user;
+                    console.log("USER: ", user)
+                    done(null, user);
+                } else {
+                    done(error, null);
+                }
+            }
+        }
+
+    } catch(error) {
+        done(error, null);
+    }
+}
+));
+
+
+
 // POST /login   -- Create the session if the user authenticates successfully
 exports.create = passport.authenticate(
     'local',
@@ -240,6 +362,21 @@ exports.create = passport.authenticate(
         failureFlash: 'Authentication has failed. Retry it again.'
     }
 );
+
+
+// GET /auth/google   -- authenticate at Google
+exports.authGoogle = GoogleStrategy && passport.authenticate('google', {scope: ['profile', 'email']});
+
+// GET /auth/google/callback
+exports.authGoogleCB = GoogleStrategy && passport.authenticate(
+    'google',
+    {
+        failureRedirect: '/users',
+        successFlash: 'Welcome!',
+        failureFlash: 'Authentication has failed. Retry it again.'
+    }
+);
+
 
 
 // Middleware to create req.session.loginExpires, which is the current inactivity time
@@ -255,12 +392,9 @@ exports.createLoginExpires = (req, res, next) => {
 // GET /login   -- Login form
 exports.new = (req, res, next) => {
 
-    res.render('session/new'/*, {
-        loginWithGitHub: !!GitHubStrategy,
-        loginWithTwitter: !!TwitterStrategy,
-        loginWithGoogle: !!GoogleStrategy,
-        loginWithLinkedin: !!LinkedinStrategy
-    }*/);
+    res.render('session/new', {
+        loginWithGoogle: !!GoogleStrategy
+    });
 };
 
 

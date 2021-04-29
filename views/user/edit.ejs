@@ -3,6 +3,7 @@
     <% include _passCheck.ejs %>
 
     <ul>
+        <% if (user.accountType === "local") { %>
         <li>
 
             <b>Email actual: <%= user.email %></b>
@@ -10,8 +11,9 @@
             <input type="email" id="email" name="email" />
 
         </li>
-
-
+        <% } else { %>
+            <li>Email (no se puede cambiar ya que se ha iniciado sesión con <%= user.accountType %>): <%= user.email %></li>
+        <% } %>
         <li>
 
             <b>Username actual: <%= user.username %></b>
@@ -37,6 +39,16 @@
             <input type="textarea" rows="10" id="bio" name="bio" />
 
         </li>
+
+        <li>
+             
+            <b>Perfil privado: <%= user.isPrivate %></b>
+            <label for="isPrivate" class="rem">Perfil privado:</label>
+            <input type="checkbox" id="isPrivate" name="isPrivate" <%- user.isPrivate ? "checked" : "" %> />
+
+        </li>
+
+        <li>Account type: <%= user.accountType %></li>
 
     </ul>
 

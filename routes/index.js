@@ -32,7 +32,6 @@ router.get(
   [
       '/',
       '/users',
-      '/users/:id(\\d+)',
       '/posts',
       '/posts/:id(\\d+)',
   ],
@@ -66,14 +65,20 @@ router.get('/users', userController.index);
 router.get('/users/:userId(\\d+)', userController.show);
 router.get('/users/new', userController.new);
 router.post('/users', userController.create);
-router.get('/users/:userId(\\d+)/edit', sessionController.loginRequired, sessionController.adminOrMyselfRequired, userController.edit);
-router.put('/users/:userId(\\d+)', sessionController.loginRequired, sessionController.adminOrMyselfRequired, userController.update);
+router.get('/users/:userId(\\d+)/edit', sessionController.loginRequired/*, userController.isLocalRequired*/, sessionController.adminOrMyselfRequired, userController.edit);
+router.put('/users/:userId(\\d+)', sessionController.loginRequired/*, serController.isLocalRequired*/, sessionController.adminOrMyselfRequired, userController.update);
 router.delete('/users/:userId(\\d+)', sessionController.loginRequired, sessionController.adminOrMyselfRequired, userController.destroy);
 
 // Routes for the resource /session
 router.get('/login', sessionController.new);
 router.post('/login', sessionController.create, sessionController.createLoginExpires);
 router.delete('/login', sessionController.destroy);
+
+// Authenticate with OAuth 2.0 at Twitter
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  router.get('/auth/google', sessionController.authGoogle);
+  router.get('/auth/google/callback', sessionController.authGoogleCB, sessionController.createLoginExpires);
+}
 
 
 

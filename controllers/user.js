@@ -63,6 +63,19 @@ axios.interceptors.response.use(async function (response) {
 
 
 
+  // MW that allows actions only if the user account is local.
+exports.isLocalRequired = (req, res, next) => {
+
+    if (req.load.user.accountType == "local") {
+        next();
+    } else {
+        console.log('Prohibited operation: The user account must be local.');
+        res.send(403);
+    }
+};
+
+
+
 exports.load = async (req, res, next, userId) => {
 
     const query = 
@@ -78,6 +91,7 @@ exports.load = async (req, res, next, userId) => {
     '    bio' +
     '    isAdmin' +
     '    isPrivate' +
+    '    accountType' +
     '  }' +
     '}';
 
@@ -206,6 +220,7 @@ exports.create = async (req, res, next) => {
     '      bio: "' + bio + '"' +
     '      createdAt: "' + currentDateISO + '"' +
     '      updatedAt: "' + currentDateISO + '"' +
+    '      accountType: "local"' +
     '      isPrivate: true' +
     '      isAdmin: false' +
     '    }' +
@@ -270,11 +285,14 @@ exports.edit = (req, res, next) => {
 exports.update = async (req, res, next) => {
 
     const userParam = req.load.user;
-    var {email, username, name, bio} = req.body;
+    var {email, username, name, bio, isPrivate} = req.body;
 
-    if (email.length === 0){
+    let isPrivateTF = true;
+    isPrivate ? isPrivateTF = true : isPrivateTF = false;
+console.log(isPrivateTF)
+    /*if (email.length === 0){
         email = userParam.email;
-    };
+    };*/
 
     if (username.length === 0){
         username = userParam.username;
@@ -291,13 +309,52 @@ exports.update = async (req, res, next) => {
     let currentDate = new Date();
     let currentDateISO = (currentDate.toISOString()).slice(0, -8);
 
-    const query = 
+    let query = '';
+
+    if (email === undefined) {
+        query = 
+        'mutation {' +
+        '  user: koopap_UsersUpdate (' +
+        '    where: { id: {EQ: ' + userParam.id + '}' +
+        '    }' +
+        '    entity: {' +
+        '      username: "' + username + '"' +
+        '      name: "' + name + '"' +
+        '      bio: "' + bio + '"' +
+        '      isPrivate: ' + isPrivateTF + '' +
+        '      updatedAt: "' + currentDateISO + '"' +
+        '    }' +
+        '  ) {' +
+        '    id' +
+        '  }' +
+        '}';
+    } else {
+        query = 
+        'mutation {' +
+        '  user: koopap_UsersUpdate (' +
+        '    where: { id: {EQ: ' + userParam.id + '}' +
+        '    }' +
+        '    entity: {' +
+        '      email: "' + email + '"' +
+        '      username: "' + username + '"' +
+        '      name: "' + name + '"' +
+        '      bio: "' + bio + '"' +
+        '      isPrivate: ' + isPrivateTF + '' +
+        '      updatedAt: "' + currentDateISO + '"' +
+        '    }' +
+        '  ) {' +
+        '    id' +
+        '  }' +
+        '}';
+    }
+
+    /*const query = 
     'mutation {' +
     '  user: koopap_UsersUpdate (' +
     '    where: { id: {EQ: ' + userParam.id + '}' +
     '    }' +
     '    entity: {' +
-    '      email: "' + email + '"' +
+    (email === undefined) ? '' : '      email: "' + email + '"' +
     '      username: "' + username + '"' +
     '      name: "' + name + '"' +
     '      bio: "' + bio + '"' +
@@ -306,17 +363,18 @@ exports.update = async (req, res, next) => {
     '  ) {' +
     '    id' +
     '  }' +
-    '}';
+    '}';*/
 
     const variables = {
         authorization: token
     };
       
+console.log('EMAIL:', email)
 
     try {
 
         let request = JSON.stringify({query: query, variables: variables});
-
+        console.log('REQUEST:', request)
         let response = await axios({
             url: 'https://koopap.flows.ninja/graphql',
             method: 'post',
@@ -381,7 +439,7 @@ exports.destroy = async (req, res, next) => {
                 const user = response.data.data.user[0];
                 if (user.id === userParam.id) {
                     req.flash('success', 'Usuario eliminado correctamente');
-                    res.redirect('/goback');
+                    res.redirect('/');
                 }
 
             } else {

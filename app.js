@@ -7,6 +7,7 @@ var partials = require('express-partials');
 var session = require('express-session');
 var methodOverride = require('method-override');
 var flash = require('express-flash');
+require('dotenv').config();
 
 const passport = require('passport');
 

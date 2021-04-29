@@ -16,9 +16,9 @@
       </li>
 
       <% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === post.authorId)) { %>
-        <a href="/posts/<%= post.id %>/edit" class="button">EDITAR</a>
-        <a href="/posts/<%= post.id %>?_method=DELETE"
-          onClick="return confirm('Eliminar post: <%= post.title %>');"
-          class="button">ELIMINAR</a>
+          <a href="/posts/<%= post.id %>/edit" class="button">EDITAR</a>
+          <a href="/posts/<%= post.id %>?_method=DELETE"
+            onClick="return confirm('Eliminar post: <%= post.title %>');"
+            class="button">ELIMINAR</a>
       <% } %>
 

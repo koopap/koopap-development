@@ -8,10 +8,10 @@
         <ul>USERNAME: <%= user.username %></ul>
         <ul>BIO: <%= user.bio %></ul>
       </li>
-
+      <h1><%= locals.loginUser.id %></h1>
       <% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === user.id)) { %>
-        <a href="/users/<%= user.id %>/edit" class="button">EDITAR</a>
-        <a href="/users/<%= user.id %>?_method=DELETE"
+          <a href="/users/<%= user.id %>/edit" class="button">EDITAR</a>
+          <a href="/users/<%= user.id %>?_method=DELETE"
           onClick="return confirm('Eliminar usuario: <%= user.username %>');"
           class="button">ELIMINAR</a>
       <% } %>

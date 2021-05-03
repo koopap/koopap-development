@@ -92,6 +92,10 @@ exports.load = async (req, res, next, userId) => {
     '    isAdmin' +
     '    isPrivate' +
     '    accountType' +
+    '    posts: PostsListViaAuthorId {' +
+    '       id' +
+    '       title' +
+    '     }' +
     '  }' +
     '}';
 
@@ -114,7 +118,7 @@ exports.load = async (req, res, next, userId) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            if (response.data.data.user) {
+            if (response.data.data.user && response.data.data.user.length !== 0) {
                 const user = response.data.data.user[0];
                 req.load = {...req.load, user};
                 next();

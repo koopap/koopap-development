@@ -1,5 +1,6 @@
 const axios = require('axios');
 
+const paginate = require('../helpers/paginate').paginate;
 
 
 exports.load = async (req, res, next, postId) => {
@@ -18,10 +19,13 @@ exports.load = async (req, res, next, postId) => {
     '    impact' +
     '    createdAt' +
     '    updatedAt' +
-    '    authorId' +
     '    categoryId' +
     '    length' +
     '    readingTime' +
+    '    authorId: UsersViaAuthorId {' +
+    '       id' +
+    '       name' +
+    '    }' +
     '  }' +
     '}';
 
@@ -44,7 +48,7 @@ exports.load = async (req, res, next, postId) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
 
-            if (response.data.data.post) {
+            if (response.data.data.post && response.data.data.post.length !== 0) {
                 const post = response.data.data.post[0];
                 req.load = {...req.load, post};
                 next();
@@ -79,22 +83,22 @@ exports.adminOrAuthorRequired = (req, res, next) => {
 // GET /posts
 exports.index = async (req, res, next) => {
 
-    const query = 
+    let numberPosts = null;
+    
+    const queryNumberPosts = 
     '{' +
     '  posts: koopap_PostsList {' +
-    '    id' +
-    '    title' +
+    '    numberPosts: id_count' +
     '  }' +
     '}';
 
     const variables = {
         authorization: token
     };
-      
 
     try {
 
-        let request = JSON.stringify({query: query, variables: variables});
+        let request = JSON.stringify({query: queryNumberPosts, variables: variables});
         let response = await axios({
             url: 'https://koopap.flows.ninja/graphql',
             method: 'post',
@@ -104,18 +108,77 @@ exports.index = async (req, res, next) => {
         if (response.status != 200) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
-            const posts = response.data.data.posts;
 
-            if (posts) {
-                res.render('post/index', { posts: posts });
+            if (response.data.data.posts) {
+                numberPosts = response.data.data.posts[0].numberPosts;
             } else {
-                throw new Error('There is no posts');
+                throw new Error('Error in counting posts');
             }
         }
 
     } catch (error) {
         next(error);
     }
+
+    if (numberPosts !== null) {
+        // Pagination:
+
+        const items_per_page = 2;
+
+        // The page to show is given in the query
+        const pageno = parseInt(req.query.pageno) || 1;
+
+        // Create a String with the HTMl used to render the pagination buttons.
+        // This String is added to a local variable of res, which is used into the application layout file.
+        res.locals.paginate_control = paginate(numberPosts, items_per_page, pageno, req.url);
+
+
+        const offset = items_per_page * (pageno - 1);
+        const limit = items_per_page;
+
+
+        const query = 
+        '{' +
+        '  posts: koopap_PostsList (' +
+        '    limit: ' + limit +
+        '    offset: ' + offset +
+        '  ){' +
+        '    id' +
+        '    title' +
+        '    authorId: UsersViaAuthorId {' +
+        '       id' +
+        '       name' +
+        '    }' +
+        '  }' +
+        '}';
+        
+
+        try {
+
+            let request = JSON.stringify({query: query, variables: variables});
+            let response = await axios({
+                url: 'https://koopap.flows.ninja/graphql',
+                method: 'post',
+                data: request
+            })
+
+            if (response.status != 200) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            } else {
+                const posts = response.data.data.posts;
+
+                if (posts) {
+                    res.render('post/index', { posts: posts });
+                } else {
+                    throw new Error('There is no posts');
+                }
+            }
+
+        } catch (error) {
+            next(error);
+        }
+    }
+    
 
 };
 

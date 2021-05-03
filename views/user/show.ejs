@@ -15,4 +15,11 @@
           onClick="return confirm('Eliminar usuario: <%= user.username %>');"
           class="button">ELIMINAR</a>
       <% } %>
-
+      
+      <div>Listado de posts del usuario:</div>
+      <li>
+        
+        <% for (var i in user.posts) { %>
+          <a href="/posts/<%= user.posts[i].id %>" class="button">POST: <%= user.posts[i].title %></a>
+        <% } %>
+      </li>

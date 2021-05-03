@@ -9,10 +9,10 @@
         <ul>IMAPCT: <%= post.impact %></ul>
         <ul>CREATEDAT: <%= post.createdAt %></ul>
         <ul>UPDATEDAT: <%= post.updatedAt %></ul>
-        <ul>AUTHORID: <%= post.authorId %></ul>
         <ul>CATEGORYID: <%= post.categoryId %></ul>
         <ul>LENGTH: <%= post.length %></ul>
         <ul>READINGTIME: <%= post.readingTime %></ul>
+        <ul><a href="/users/<%= post.authorId.id %>" class="button">AUTHOR: <%= post.authorId.name %></a></ul>
       </li>
 
       <% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === post.authorId)) { %>

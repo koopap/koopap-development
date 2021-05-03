@@ -3,8 +3,13 @@
     <table id="">
       <% for (var i in posts) { %>
         <tr>
-          <td><a href="/posts/<%= posts[i].id %>" class="button"><%= posts[i].title %></a><b><%= posts[i].id %></b></td>
+          <td><a href="/posts/<%= posts[i].id %>" class="button"><%= posts[i].title %></a>AUTHOR: <%= posts[i].authorId.name %></td>
         </tr>
       <% } %>
+      
     </table>
+
+    <% if (locals.paginate_control) { %>
+      <%- paginate_control %>
+    <% } %>
 

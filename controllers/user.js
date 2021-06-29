@@ -293,7 +293,7 @@ exports.update = async (req, res, next) => {
 
     let isPrivateTF = true;
     isPrivate ? isPrivateTF = true : isPrivateTF = false;
-console.log(isPrivateTF)
+
     /*if (email.length === 0){
         email = userParam.email;
     };*/
@@ -352,33 +352,14 @@ console.log(isPrivateTF)
         '}';
     }
 
-    /*const query = 
-    'mutation {' +
-    '  user: koopap_UsersUpdate (' +
-    '    where: { id: {EQ: ' + userParam.id + '}' +
-    '    }' +
-    '    entity: {' +
-    (email === undefined) ? '' : '      email: "' + email + '"' +
-    '      username: "' + username + '"' +
-    '      name: "' + name + '"' +
-    '      bio: "' + bio + '"' +
-    '      updatedAt: "' + currentDateISO + '"' +
-    '    }' +
-    '  ) {' +
-    '    id' +
-    '  }' +
-    '}';*/
-
     const variables = {
         authorization: token
     };
-      
-console.log('EMAIL:', email)
 
     try {
 
         let request = JSON.stringify({query: query, variables: variables});
-        console.log('REQUEST:', request)
+
         let response = await axios({
             url: 'https://koopap.flows.ninja/graphql',
             method: 'post',

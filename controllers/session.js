@@ -315,7 +315,7 @@ async (accessToken, refreshToken, profile, done) => {
             method: 'post',
             data: requestFind
           })
-console.log("RF", requestFind)
+
         if (response.status != 200) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {

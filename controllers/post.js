@@ -85,12 +85,33 @@ exports.index = async (req, res, next) => {
 
     let numberPosts = null;
     
-    const queryNumberPosts = 
+    let queryNumberPosts = 
     '{' +
     '  posts: koopap_PostsList {' +
     '    numberPosts: id_count' +
     '  }' +
     '}';
+
+    // Search:
+    const search = req.query.search || '';
+    let searchOptions = 0;
+    if (search) {
+        searchOptions = search + ':*';
+
+        queryNumberPosts = 
+            '{' +
+            '  posts: koopap_PostsList (' +
+            '   where: {' +
+            '      OR: [' +
+            '       {title: {SEARCH: {query:"'+ searchOptions +'"}}}' +
+            '       {content: {SEARCH: {query:"'+ searchOptions +'"}}}' +
+            '      ]' +
+            '   }' +
+            '  ) {' +
+            '    numberPosts: id_count' +
+            '  }' +
+            '}';
+    }
 
     const variables = {
         authorization: token
@@ -137,7 +158,7 @@ exports.index = async (req, res, next) => {
         const limit = items_per_page;
 
 
-        const query = 
+        let query = 
         '{' +
         '  posts: koopap_PostsList (' +
         '    limit: ' + limit +
@@ -151,6 +172,29 @@ exports.index = async (req, res, next) => {
         '    }' +
         '  }' +
         '}';
+
+        if (search) {
+            query = 
+            '{' +
+            '  posts: koopap_PostsList (' +
+            '    limit: ' + limit +
+            '    offset: ' + offset +
+            '   where: {' +
+            '      OR: [' +
+            '       {title: {SEARCH: {query:"'+ searchOptions +'"}}}' +
+            '       {content: {SEARCH: {query:"'+ searchOptions +'"}}}' +
+            '      ]' +
+            '   }' +
+            '  ){' +
+            '    id' +
+            '    title' +
+            '    authorId: UsersViaAuthorId {' +
+            '       id' +
+            '       name' +
+            '    }' +
+            '  }' +
+            '}';
+        }
         
 
         try {
@@ -168,7 +212,7 @@ exports.index = async (req, res, next) => {
                 const posts = response.data.data.posts;
 
                 if (posts) {
-                    res.render('post/index', { posts: posts });
+                    res.render('post/index', { posts: posts, search: search });
                 } else {
                     throw new Error('There is no posts');
                 }

@@ -22,7 +22,7 @@ exports.load = async (req, res, next, postId) => {
     '    categoryId' +
     '    length' +
     '    readingTime' +
-    '    authorId: UsersViaAuthorId {' +
+    '    author: UsersViaAuthorId {' +
     '       id' +
     '       name' +
     '    }' +
@@ -69,7 +69,7 @@ exports.load = async (req, res, next, postId) => {
 exports.adminOrAuthorRequired = (req, res, next) => {
 
     const isAdmin = !!req.loginUser.isAdmin;
-    const isAuthor = req.load.post.authorId === req.loginUser.id;
+    const isAuthor = req.load.post.author.id === req.loginUser.id;
 
     if (isAdmin || isAuthor) {
         next();
@@ -167,7 +167,7 @@ exports.index = async (req, res, next) => {
         '  ){' +
         '    id' +
         '    title' +
-        '    authorId: UsersViaAuthorId {' +
+        '    author: UsersViaAuthorId {' +
         '       id' +
         '       name' +
         '    }' +
@@ -189,7 +189,7 @@ exports.index = async (req, res, next) => {
             '  ){' +
             '    id' +
             '    title' +
-            '    authorId: UsersViaAuthorId {' +
+            '    author: UsersViaAuthorId {' +
             '       id' +
             '       name' +
             '    }' +

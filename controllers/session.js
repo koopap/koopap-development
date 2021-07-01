@@ -109,7 +109,7 @@ passport.serializeUser((user, done) => {
  * Find the user with the serialized id.
  */
 passport.deserializeUser(async (id, done) => {
-    console.log("DESSS")
+
     const query = 
     '{' +
     '  user: koopap_UsersList (' +
@@ -231,7 +231,6 @@ passport.use(new LocalStrategy(
                 const user = response.data.data.user[0];
 
                 if (user && verifyPassword(password, user.password, user.salt)) {
-                    console.log(user)
                     done(null, user);
                 } else {
                     done(null, false);
@@ -258,7 +257,6 @@ GoogleStrategy && passport.use(new GoogleStrategy({
 },
 async (accessToken, refreshToken, profile, done) => {
 
-    console.log("PROFILE: ", profile)
     const queryFind = 
     '{' +
     '  user: koopap_UsersList (' +
@@ -320,24 +318,21 @@ async (accessToken, refreshToken, profile, done) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else {
             //if (response.data.data.user) {
-            console.log("RR", response.data)
 
             if (response.data.data.user.length != 0) {
                 const user = response.data.data.user[0];
                 done(null, user);
             } else {
                 let requestCreate = JSON.stringify({query: queryCreate, variables: variables});
-                console.log("REQU", requestCreate)
+
                 let response = await axios({
                     url: 'https://koopap.flows.ninja/graphql',
                     method: 'post',
                     data: requestCreate
                 })
-                console.log(response.data)
-                console.log("RES", response.data.data)
+
                 if (response.data.data.user) {
                     const user = response.data.data.user;
-                    console.log("USER: ", user)
                     done(null, user);
                 } else {
                     done(error, null);

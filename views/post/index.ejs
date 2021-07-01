@@ -12,7 +12,7 @@
     <table id="">
       <% for (var i in posts) { %>
         <tr>
-          <td><a href="/posts/<%= posts[i].id %>" class="button"><%= posts[i].title %></a>AUTHOR: <%= posts[i].authorId.name %></td>
+          <td><a href="/posts/<%= posts[i].id %>" class="button"><%= posts[i].title %></a>AUTHOR: <%= posts[i].author.name %></td>
         </tr>
       <% } %>
       

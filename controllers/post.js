@@ -93,18 +93,19 @@ exports.index = async (req, res, next) => {
     '}';
 
     // Search:
-    const search = req.query.search || '';
-    let searchOptions = 0;
+    const search = req.query.search || ''; //When there is not search, or the search is blank (no spaces)
+    let searchOptions = "%";
+
     if (search) {
-        searchOptions = search + ':*';
+        searchOptions = "%" + search.replace(/ +/g, "%") + "%"; //Replaces spaces with %
 
         queryNumberPosts = 
             '{' +
             '  posts: koopap_PostsList (' +
             '   where: {' +
             '      OR: [' +
-            '       {title: {SEARCH: {query:"'+ searchOptions +'"}}}' +
-            '       {content: {SEARCH: {query:"'+ searchOptions +'"}}}' +
+            '       {title: {ILIKE: "'+ searchOptions +'"}}' +
+            '       {content: {ILIKE: "'+ searchOptions +'"}}' +
             '      ]' +
             '   }' +
             '  ) {' +
@@ -181,8 +182,8 @@ exports.index = async (req, res, next) => {
             '    offset: ' + offset +
             '   where: {' +
             '      OR: [' +
-            '       {title: {SEARCH: {query:"'+ searchOptions +'"}}}' +
-            '       {content: {SEARCH: {query:"'+ searchOptions +'"}}}' +
+            '       {title: {ILIKE: "'+ searchOptions +'"}}' +
+            '       {content: {ILIKE: "'+ searchOptions +'"}}' +
             '      ]' +
             '   }' +
             '  ){' +
